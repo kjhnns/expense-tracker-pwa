@@ -22,6 +22,7 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./frontend"))
 	r.Handle("/*", http.StripPrefix("/", fileServer))
 
+
 	r.Post("/api/groups", createGroupHandler(db))
 
 	log.Fatal(http.ListenAndServe(":8080", r))
