@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -20,6 +21,9 @@ func setupTestDB(t *testing.T) *sql.DB {
 func TestCreateGroupEndpoint(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
+
+	os.Setenv("INVITE_TOKEN_SECRET", "testsecret")
+	defer os.Unsetenv("INVITE_TOKEN_SECRET")
 
 	r := chi.NewRouter()
 	r.Post("/groups/create", createGroupEndpoint(db))
