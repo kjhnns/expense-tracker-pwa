@@ -1,0 +1,33 @@
+# fly.toml app configuration file generated for split-app-pwa on 2025-06-05T13:43:14Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'split-app-pwa'
+primary_region = 'cdg'
+
+
+[build]
+  builder = "heroku/buildpacks:20" 
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+
+[env]
+  PORT = "8080"
+
