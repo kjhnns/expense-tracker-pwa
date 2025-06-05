@@ -39,6 +39,12 @@ func initDB(path string) *sql.DB {
         PRIMARY KEY (group_id, phone_number)
     );
 
+    CREATE TABLE IF NOT EXISTS login_tokens (
+        token TEXT PRIMARY KEY,
+        phone_number TEXT NOT NULL REFERENCES users(phone_number),
+        expires_at DATETIME NOT NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_group_members_group_id ON group_members(group_id);
     CREATE INDEX IF NOT EXISTS idx_group_members_phone_number ON group_members(phone_number);`
 
