@@ -7,8 +7,11 @@ import (
 	"time"
 )
 
-// Group represents a collection of phone numbers.
-type Group struct {
+// LegacyGroup represents the previous group model with inline phone numbers.
+//
+// Deprecated: this type will be removed in favour of `Group` which stores
+// members in a separate table.
+type LegacyGroup struct {
 	ID              int64     `json:"id"`
 	Phones          []string  `json:"phones"`
 	Name            string    `json:"name"`
@@ -25,6 +28,10 @@ type createGroupRequest struct {
 }
 
 // createGroupHandler saves a new group with phone numbers to the database.
+//
+// Deprecated: this handler operates on the old `groups` schema that stored all
+// member phone numbers in a JSON column. New code should use
+// `createGroupEndpoint` instead.
 func createGroupHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req createGroupRequest
@@ -66,7 +73,7 @@ func createGroupHandler(db *sql.DB) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(Group{
+		json.NewEncoder(w).Encode(LegacyGroup{
 			ID:              id,
 			Phones:          req.Phones,
 			Name:            req.Name,

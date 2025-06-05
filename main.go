@@ -38,7 +38,9 @@ func main() {
 	fileServer := http.FileServer(http.FS(frontendFS))
 	r.Handle("/*", http.StripPrefix("/", fileServer))
 
-	r.Post("/api/groups", createGroupHandler(db))
+	// Deprecated: the /api/groups endpoint used an older schema and has
+	// been replaced by /groups/create.
+	r.Post("/groups/create", createGroupEndpoint(db))
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
