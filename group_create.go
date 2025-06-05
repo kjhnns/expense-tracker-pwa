@@ -71,7 +71,11 @@ func createGroupEndpoint(db *sql.DB) http.HandlerFunc {
 				http.Error(w, "server error", http.StatusInternalServerError)
 				return
 			}
-			token := uuid.New().String() // stub token generation
+			token, err := GenerateInviteToken(phone, groupID)
+			if err != nil {
+				http.Error(w, "server error", http.StatusInternalServerError)
+				return
+			}
 			inviteLinks[phone] = "https://app.com/invite?token=" + token
 		}
 
