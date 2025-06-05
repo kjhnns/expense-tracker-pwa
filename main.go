@@ -5,8 +5,10 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/twilio/twilio-go"
 )
 
 //go:embed frontend
@@ -15,6 +17,12 @@ var embeddedFrontend embed.FS
 func main() {
 	db := initDB("data.db")
 	defer db.Close()
+
+	twilioClient := twilio.NewRestClient()
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL == "" {
+		baseURL = "http://localhost:8080"
+	}
 
 	r := chi.NewRouter()
 
@@ -37,6 +45,10 @@ func main() {
 	// Serve static frontend assets such as app.js and component files
 	fileServer := http.FileServer(http.FS(frontendFS))
 	r.Handle("/*", http.StripPrefix("/", fileServer))
+
+	// Auth endpoints
+	r.Post("/register", registerHandler(db, twilioClient, baseURL))
+	r.Get("/verify", verifyHandler(db))
 
 	// Deprecated: the /api/groups endpoint used an older schema and has
 	// been replaced by /groups/create.
