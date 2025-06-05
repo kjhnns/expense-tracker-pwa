@@ -1,12 +1,16 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
+	db := initDB("data.db")
+	defer db.Close()
+
 	r := chi.NewRouter()
 
 	// Serve the frontend index.html when the root path is requested
@@ -18,5 +22,8 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./frontend"))
 	r.Handle("/*", http.StripPrefix("/", fileServer))
 
-	http.ListenAndServe(":8080", r)
+
+	r.Post("/api/groups", createGroupHandler(db))
+
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
