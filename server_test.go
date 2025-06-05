@@ -1,30 +1,22 @@
 package main
 
 import (
-	"embed"
 	"io/fs"
-	"log"
 	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
 
 	"github.com/go-chi/chi/v5"
 )
 
-//go:embed frontend
-var embeddedFrontend embed.FS
-
-func main() {
-	db := initDB("data.db")
-	defer db.Close()
-
-	r := chi.NewRouter()
-
-	// Use embedded frontend files
+func TestRootServesIndex(t *testing.T) {
 	frontendFS, err := fs.Sub(embeddedFrontend, "frontend")
 	if err != nil {
-		log.Fatalf("sub fs: %v", err)
+		t.Fatalf("sub fs: %v", err)
 	}
 
-	// Serve the frontend index.html when the root path is requested
+	r := chi.NewRouter()
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		data, err := fs.ReadFile(frontendFS, "index.html")
 		if err != nil {
@@ -33,12 +25,17 @@ func main() {
 		}
 		w.Write(data)
 	})
-
-	// Serve static frontend assets such as app.js and component files
 	fileServer := http.FileServer(http.FS(frontendFS))
 	r.Handle("/*", http.StripPrefix("/", fileServer))
 
-	r.Post("/api/groups", createGroupHandler(db))
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d", w.Code)
+	}
+	if !strings.Contains(w.Body.String(), "Welcome to the Zero-Registration Expense Tracker") {
+		t.Fatalf("unexpected body: %s", w.Body.String())
+	}
 }
