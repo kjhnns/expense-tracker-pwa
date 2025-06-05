@@ -1,33 +1,27 @@
-# fly.toml app configuration file generated for split-app-pwa on 2025-06-05T13:43:14Z
+# fly.toml app configuration file generated for expense-tracker-pwa-fragrant-frost-4010 on 2025-06-05T15:42:54Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'split-app-pwa'
+app = 'expense-tracker-pwa-fragrant-frost-4010'
 primary_region = 'cdg'
 
-
 [build]
-  builder = "heroku/buildpacks:20" 
+  [build.args]
+    GO_VERSION = '1.23.0'
 
-[[services]]
+[env]
+  PORT = '8080'
+
+[http_service]
   internal_port = 8080
-  protocol = "tcp"
-
-  [[services.ports]]
-    handlers = ["http"]
-    port = 80
-
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
 
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-
-
-[env]
-  PORT = "8080"
-
