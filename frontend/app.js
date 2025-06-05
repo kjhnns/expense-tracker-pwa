@@ -1,1 +1,1 @@
-import './components/group-create.js'
+import './components/group-creator.js'
