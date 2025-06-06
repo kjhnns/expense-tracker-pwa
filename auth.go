@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -49,11 +50,11 @@ func registerHandler(db *sql.DB, client *twilio.RestClient, baseURL string) http
 
 		link := fmt.Sprintf("%s/verify?token=%s", baseURL, token)
 		if err := sendSMS(client, req.Phone, "Your login link: "+link); err != nil {
-			http.Error(w, "failed to send sms", http.StatusInternalServerError)
-			return
+			log.Printf("send sms: %v", err)
 		}
 
-		w.WriteHeader(http.StatusNoContent)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"link": link})
 	}
 }
 
@@ -97,6 +98,7 @@ func verifyHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		w.Write([]byte("Login successful"))
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"phone": phone})
 	}
 }

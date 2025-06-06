@@ -53,6 +53,7 @@ func main() {
 	// Deprecated: the /api/groups endpoint used an older schema and has
 	// been replaced by /groups/create.
 	r.Post("/groups/create", createGroupEndpoint(db))
+	r.Get("/groups", listGroupsHandler(db))
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
